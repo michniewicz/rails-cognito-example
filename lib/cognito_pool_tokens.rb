@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CognitoPoolTokens
   def initialize(cognito_jwt_keys, token_hash)
     @cognito_jwt_keys = cognito_jwt_keys
@@ -5,18 +7,23 @@ class CognitoPoolTokens
     @token_cache = {}
   end
 
-  def id_token; get_token('id_token'); end
-  def access_token; get_token('access_token'); end
+  def id_token
+    get_token('id_token')
+  end
+
+  def access_token
+    get_token('access_token')
+  end
 
   # refresh token shouldn't be parsed
-  def refresh_token; @token_hash['refresh_token']; end
+  def refresh_token
+    @token_hash['refresh_token']
+  end
 
-private
+  private
 
   def get_token(key)
-    if @token_cache[key]
-      return @token_cache[key]
-    end
+    return @token_cache[key] if @token_cache[key]
 
     @token_cache[key] = parse_token(@token_hash[key])
   end
@@ -30,10 +37,8 @@ private
   end
 
   def jwt_header(jwt_string)
-    parts = jwt_string.split(".")
-    unless parts.length == 3
-      raise "Not enough parts from JWT: #{jwt_string}"
-    end
+    parts = jwt_string.split('.')
+    raise "Not enough parts from JWT: #{jwt_string}" unless parts.length == 3
 
     JSON.parse(Base64.decode64(parts[0]))
   end

@@ -1,13 +1,15 @@
+# frozen_string_literal: true
+
 class AuthController < ApplicationController
   def signin
     unless params[:code]
-      render :nothing => true, :status => :bad_request
+      render nothing: true, status: :bad_request
       return
     end
 
     resp = lookup_auth_code(params[:code])
     unless resp
-      redirect_to '/'
+      redirect_to :root
       return
     end
 
@@ -26,14 +28,17 @@ class AuthController < ApplicationController
       session[:cognito_session_id] = cognito_session.id
     end
 
-    # Alternatively, you could redirect to a saved URL
-    redirect_to '/'
+    redirect_to :root
   end
 
   def signout
     if cognito_session_id = session[:cognito_session_id]
-      cognito_session = CognitoSession.find(cognito_session_id) rescue nil
-      cognito_session.destroy if cognito_session
+      cognito_session = begin
+                          CognitoSession.find(cognito_session_id)
+                        rescue StandardError
+                          nil
+                        end
+      cognito_session&.destroy
       session.delete(:cognito_session_id)
     end
 
@@ -41,7 +46,7 @@ class AuthController < ApplicationController
   end
 
   def lookup_auth_code(code)
-    client = new_cognito_client()
+    client = new_cognito_client
     client.get_pool_tokens(code)
   end
 end

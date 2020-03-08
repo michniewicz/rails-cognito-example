@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SessionsController < ApplicationController
   def signin
     redirect_to cognito_signin_url
@@ -11,7 +13,7 @@ class SessionsController < ApplicationController
     redirect_to cognito_signup_url
   end
 
-private
+  private
 
   def cognito_signin_url
     CognitoUrls.login_uri(ENV['AWS_COGNITO_APP_CLIENT_ID'],

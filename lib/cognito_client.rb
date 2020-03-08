@@ -1,9 +1,10 @@
-require "cognito_jwt_keys"
-require "cognito_pool_tokens"
-require "cognito_urls"
+# frozen_string_literal: true
+
+require 'cognito_jwt_keys'
+require 'cognito_pool_tokens'
+require 'cognito_urls'
 
 class CognitoClient
-
   def initialize(params = {})
     @pool_id = params[:pool_id] || ENV['AWS_COGNITO_POOL_ID']
     @client_id = params[:client_id] || ENV['AWS_COGNITO_APP_CLIENT_ID']
@@ -20,10 +21,10 @@ class CognitoClient
     }
 
     resp = Excon.post(token_uri,
-                      :user => @client_id,
-                      :password => @client_secret,
-                      :body => URI.encode_www_form(params),
-                      :headers => { "Content-Type" => "application/x-www-form-urlencoded"})
+                      user: @client_id,
+                      password: @client_secret,
+                      body: URI.encode_www_form(params),
+                      headers: { 'Content-Type' => 'application/x-www-form-urlencoded' })
 
     unless resp.status == 200
       Rails.logger.warn("Invalid code: #{authorization_code}: #{resp.body}")
@@ -45,16 +46,14 @@ class CognitoClient
     }
 
     hdrs = {
-      "X-Amz-Target": "AWSCognitoIdentityProviderService.InitiateAuth",
-      "Content-Type": "application/x-amz-json-1.1"
+      "X-Amz-Target": 'AWSCognitoIdentityProviderService.InitiateAuth',
+      "Content-Type": 'application/x-amz-json-1.1'
     }
 
     resp = Excon.post(CognitoUrls.refresh_token_uri,
-                      :headers => hdrs,
-                      :body => params.to_json)
-    if resp.status != 200
-      return nil
-    end
+                      headers: hdrs,
+                      body: params.to_json)
+    return nil if resp.status != 200
 
     json = JSON.parse(resp.body)
 
@@ -67,7 +66,7 @@ class CognitoClient
     CognitoPoolTokens.new(CognitoJwtKeysProvider.keys, tokens)
   end
 
-private
+  private
 
   def token_uri
     CognitoUrls.token_uri

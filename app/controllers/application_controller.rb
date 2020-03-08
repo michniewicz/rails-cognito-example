@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'cognito_jwt_keys'
 require 'cognito_client'
 
@@ -17,9 +19,7 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    unless cognito_session
-      return
-    end
+    return unless cognito_session
 
     now = Time.now.tv_sec
 
@@ -41,12 +41,12 @@ class ApplicationController < ActionController::Base
       @is_signed_in = true
       @current_user = cognito_session.user
       @cognito_session = cognito_session
-      return
+      nil
     end
   end
 
   def refresh_cognito_session(cognito_session)
-    client = new_cognito_client()
+    client = new_cognito_client
 
     resp = client.refresh_id_token(cognito_session.refresh_token)
 
@@ -60,6 +60,6 @@ class ApplicationController < ActionController::Base
   end
 
   def new_cognito_client
-    CognitoClient.new(:redirect_uri => auth_sign_in_url)
+    CognitoClient.new(redirect_uri: auth_sign_in_url)
   end
 end

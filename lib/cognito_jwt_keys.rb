@@ -1,4 +1,6 @@
-require "cognito_urls"
+# frozen_string_literal: true
+
+require 'cognito_urls'
 
 class CognitoJwtKeysProvider
   class << self
@@ -7,9 +9,9 @@ class CognitoJwtKeysProvider
     def init(pool_id)
       resp = Excon.get(key_url(pool_id))
       keys = JSON.parse(resp.body)
-      keymap = Hash[keys["keys"].map {|key|
-                      [key["kid"], JSON::JWK.new(key)]
-                    }]
+      keymap = Hash[keys['keys'].map do |key|
+                      [key['kid'], JSON::JWK.new(key)]
+                    end]
       @jwt_keys = CognitoJwtKeys.new(keymap)
     end
 
@@ -31,9 +33,7 @@ class CognitoJwtKeys
   def get(key_id, alg = 'RS256')
     key = @keys[key_id]
 
-    unless key
-      raise "No such JWK `#{key_id}`: #{@keys.keys}"
-    end
+    raise "No such JWK `#{key_id}`: #{@keys.keys}" unless key
 
     unless key[:alg] == alg
       raise "Algorithm not compatible #{key[:alg]} != #{alg}"

@@ -1,21 +1,23 @@
+# frozen_string_literal: true
+
 class CognitoUrls
-  AUTHORIZE_PATH = "/oauth2/authorize"
-  TOKEN_PATH = "/oauth2/token"
-  LOGIN_PATH = "/login"
-  LOGOUT_PATH = "/logout"
-  SIGNUP_PATH = "/signup"
+  AUTHORIZE_PATH = '/oauth2/authorize'
+  TOKEN_PATH = '/oauth2/token'
+  LOGIN_PATH = '/login'
+  LOGOUT_PATH = '/logout'
+  SIGNUP_PATH = '/signup'
 
   class << self
     @base_oauth_uri = nil
     @base_idp_uri = nil
 
     def init(domain, region)
-      @base_oauth_uri = "https://%s.auth.%s.amazoncognito.com" % [domain, region]
-      @base_idp_uri = "https://cognito-idp.%s.amazonaws.com" % [region]
+      @base_oauth_uri = format('https://%s.auth.%s.amazoncognito.com', domain, region)
+      @base_idp_uri = format('https://cognito-idp.%s.amazonaws.com', region)
     end
 
     def jwks_uri(pool_id)
-      path = "/%s/.well-known/jwks.json" % [pool_id]
+      path = format('/%s/.well-known/jwks.json', pool_id)
       URI.join(@base_idp_uri, path).to_s
     end
 
@@ -32,20 +34,17 @@ class CognitoUrls
     end
 
     def login_uri(app_client_id, redirect_uri)
-      path = "%s?response_type=code&client_id=%s&redirect_uri=%s" %
-        [LOGIN_PATH, app_client_id, redirect_uri]
+      path = format('%s?response_type=code&client_id=%s&redirect_uri=%s', LOGIN_PATH, app_client_id, redirect_uri)
       URI.join(@base_oauth_uri, path).to_s
     end
 
     def logout_uri(app_client_id, redirect_uri)
-      path = "%s?response_type=code&client_id=%s&logout_uri=%s" %
-        [LOGOUT_PATH, app_client_id, redirect_uri]
+      path = format('%s?response_type=code&client_id=%s&logout_uri=%s', LOGOUT_PATH, app_client_id, redirect_uri)
       URI.join(@base_oauth_uri, path).to_s
     end
 
     def signup_uri(app_client_id, redirect_uri)
-      path = "%s?response_type=code&client_id=%s&redirect_uri=%s" %
-        [SIGNUP_PATH, app_client_id, redirect_uri]
+      path = format('%s?response_type=code&client_id=%s&redirect_uri=%s', SIGNUP_PATH, app_client_id, redirect_uri)
       URI.join(@base_oauth_uri, path).to_s
     end
   end
